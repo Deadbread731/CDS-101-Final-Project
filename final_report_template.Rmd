@@ -3,23 +3,31 @@ title: "CDS 101 – Final Project Report"
 author: "Mason Minotaurs - Yejun Hwang, Jonathan King, and Andres Rodriguez "
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output:
+  pdf_document:
+    toc: true
   html_document:
     css: "gmu-cds101.css"
     toc: true
     toc_depth: 3
     number_sections: true
-  pdf_document:
-    toc: true
 ---
 
 > Replace this template text with your own writing, keeping the headings and overall structure aligned with the **CDS 101 project rubric**.
 
 # 1. Problem Definition
 
-- Clearly state the main problem or question you are investigating.  
-- Explain why it is interesting or important.  
-- Define the objective(s) of your analysis.  
-- Mention any key assumptions.
+This project will analyze the relationship between tuition costs and graduation rates based on a dataset from the US Department of Education. Specifically, whether institutions with higher net prices tend to have higher graduation rates. Graduation rate is used as a proxy for student success, while net price represents the average cost students pay after financial aid. This will be beneficial to incoming college students who want to see if the higher cost is worth it. College graduates may also be interested in seeing if their college tuition was worth it, or not, in addition to their experience after graduation. 
+
+
+We expect that colleges with higher net prices will have higher graduation rates. This expectation is based on the idea that more expensive institutions often have more financial resources, provide better academic support services, admit more academically prepared students, and have lower student-to-faculty ratios.
+
+
+However, the relationship may not be extremely strong. Net price alone does not capture all factors influencing graduation rates. Other important variables include admission selectivity, student socioeconomic background, institutional type (public vs private), and Academic preparedness of students.
+
+
+There is also a consideration that a more expensive college may have better education, so the graduation rates may be lower than a college one might consider "easier"; this relies on how well the education at a college is, which this model wouldn't show.
+
+
 
 # 2. Data Acquisition & Description
 
