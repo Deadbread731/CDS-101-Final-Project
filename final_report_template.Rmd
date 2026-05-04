@@ -43,14 +43,23 @@ There is also a consideration that a more expensive college may have better educ
   
 **- Brief description of the variables / features (with units if relevant).** 
   
-  There are many variables about college information, but we will only focus on 
+  There are many variables about college information, but we will only focus on:
+  
+  
   C150_4   # 4-year graduation rate
+  
   NPT4_PUB   # public schools
+  
   NPT4_PRIV  # private schools
+  
   ADM_RATE # selectivity
+  
   CONTROL # public vs private
+  
   LOCALE # urban/rural
+  
   SATVRMID, SATMTMID # academic preparedness
+  
   
   
 **- Approximate size (rows, columns).**
@@ -79,22 +88,43 @@ college = readRDS("college.rds")
 
 Describe the steps you took to make the data usable, for example:
 
-- Handling missing values (drop, impute, etc.).  
-- Fixing types (dates, numeric vs. categorical).  
-- Removing outliers (if done).  
-- Creating new features (feature engineering).  
-- Any scaling or encoding.
+**- Handling missing values (drop, impute, etc.).**  
+    
+    We dropped the rows that weren't a graduation rate of 4 years/ 4 year institutions
+    
+    
+**- Fixing types (dates, numeric vs. categorical).** 
+
+    We dropped rows that did not contain any information about the graduation rates and net prices (C150_4, NPT4_PUB, NPT4_PRIV).
+    
+
+**- Removing outliers (if done).** 
+  
+    We didn't remove any outliers becuse they are needed for analysis
+    
+    
+**- Creating new features (feature engineering).** 
+
+    A new feature, net_price, was created by combining private and public institution net price
+
+
+**- Any scaling or encoding.**
+  
+    No scaling was needed
 
 ```{r cleaning, eval=FALSE}
 # Example pseudo-code for cleaning:
-# data_clean <- data |>
-#   dplyr::filter(!is.na(target_variable)) |>
-#   dplyr::mutate(
-#     new_feature = some_transformation(old_feature)
-#   )
-colnames(college)
-grep("C150", colnames(college), value = TRUE)
-grep("NPT", colnames(college), value = TRUE)
+college_clean <- college %>%
+   dplyr::filter(PREDDEG == 3) %>%
+   dplyr::mutate(
+     grad_rate = C150_4,
+     net_price = dplyr::coalesce(NPT4_PUB, NPT4_PRIV)
+   ) %>%
+  dplyr::filter(
+    !is.na(grad_rate),
+    !is.na(net_price)
+  )
+
 ```
 
 # 4. Exploratory Data Analysis (EDA)
