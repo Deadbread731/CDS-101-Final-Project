@@ -113,7 +113,6 @@ Describe the steps you took to make the data usable, for example:
     No scaling was needed
 
 ```{r cleaning, eval=FALSE}
-# Example pseudo-code for cleaning:
 college_clean <- college %>%
    dplyr::filter(PREDDEG == 3) %>%
    dplyr::mutate(
