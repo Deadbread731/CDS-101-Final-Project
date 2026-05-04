@@ -31,16 +31,48 @@ There is also a consideration that a more expensive college may have better educ
 
 # 2. Data Acquisition & Description
 
-- Name and source of the dataset(s).  
-- How you obtained the data (download link, API, etc.).  
-- Brief description of the variables / features (with units if relevant).  
-- Approximate size (rows, columns).  
-- Any ethical, privacy, or bias considerations (if applicable).
+**- Name and source of the dataset(s). **
+
+  College.rds dataset from the instructor
+  
+  
+**- How you obtained the data (download link, API, etc.).**
+
+  Canvas download from CDS 101
+  
+  
+**- Brief description of the variables / features (with units if relevant).** 
+  
+  There are many variables about college information, but we will only focus on 
+  C150_4   # 4-year graduation rate
+  NPT4_PUB   # public schools
+  NPT4_PRIV  # private schools
+  ADM_RATE # selectivity
+  CONTROL # public vs private
+  LOCALE # urban/rural
+  SATVRMID, SATMTMID # academic preparedness
+  
+  
+**- Approximate size (rows, columns).**
+  
+  Rows: 7,058
+  Columns: 1,977
+  
+  
+**- Any ethical, privacy, or bias considerations (if applicable).**
+
+  There may be cultural and societal factors that are not accounted for, especially because there are divisions among race and sex. We are also going into the project with the assumption higher tuition may cause lower graduaiton rate, given a better education is more expensive and difficult.
+  
 
 ```{r setup-data, echo=FALSE, message=FALSE, warning=FALSE}
 # Example: load a dataset (replace with your own)
 # library(readr)
+library(tidyverse)
+library(modelr)
+library(broom)
 # data <- read_csv("college.rds")
+college = readRDS("college.rds")
+
 ```
 
 # 3. Data Cleaning & Preprocessing
@@ -60,6 +92,9 @@ Describe the steps you took to make the data usable, for example:
 #   dplyr::mutate(
 #     new_feature = some_transformation(old_feature)
 #   )
+colnames(college)
+grep("C150", colnames(college), value = TRUE)
+grep("NPT", colnames(college), value = TRUE)
 ```
 
 # 4. Exploratory Data Analysis (EDA)
