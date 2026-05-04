@@ -211,7 +211,13 @@ sessionInfo()
 
 List any references you used, such as:
 
-- Dataset documentation.  
+- Dataset documentation.
+
+  College.rds dataset
+  
+  https://docs.google.com/spreadsheets/d/1YrYiJ-J9rLhs4Qf5OCvHGMyUFyMKOMtMuGmpyt47mEY/edit?gid=1593529489#gid=1593529489
+  
+
 - Research papers or articles.  
 - Tutorials or blog posts.
 
