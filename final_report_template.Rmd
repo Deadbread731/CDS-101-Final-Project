@@ -40,7 +40,7 @@ There is also a consideration that a more expensive college may have better educ
 ```{r setup-data, echo=FALSE, message=FALSE, warning=FALSE}
 # Example: load a dataset (replace with your own)
 # library(readr)
-# data <- read_csv("data/your_data.csv")
+# data <- read_csv("college.rds")
 ```
 
 # 3. Data Cleaning & Preprocessing
