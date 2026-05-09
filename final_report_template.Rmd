@@ -1,6 +1,6 @@
 ---
 title: "CDS 101 – Final Project Report"
-author: "Mason Minotaurs - Yejun Hwang, Jonathan King, and Andres Rodriguez "
+author: "Mason Minotaurs - Yejun Hwang, Jonathan King, and Andres Rodriguez"
 date: "`r format(Sys.Date(), '%B %d, %Y')`"
 output:
   pdf_document:
@@ -12,28 +12,22 @@ output:
     number_sections: true
 ---
 
-> Replace this template text with your own writing, keeping the headings and overall structure aligned with the **CDS 101 project rubric**.
-
 # 1. Problem Definition
 
 This project will analyze the relationship between tuition costs and graduation rates based on a dataset from the US Department of Education. Specifically, whether institutions with higher net prices tend to have higher graduation rates. Graduation rate is used as a proxy for student success, while net price represents the average cost students pay after financial aid. This will be beneficial to incoming college students who want to see if the higher cost is worth it. College graduates may also be interested in seeing if their college tuition was worth it, or not, in addition to their experience after graduation. 
 
-
 We expect that colleges with higher net prices will have higher graduation rates. This expectation is based on the idea that more expensive institutions often have more financial resources, provide better academic support services, admit more academically prepared students, and have lower student-to-faculty ratios.
-
 
 However, the relationship may not be extremely strong. Net price alone does not capture all factors influencing graduation rates. Other important variables include admission selectivity, student socioeconomic background, institutional type (public vs private), and Academic preparedness of students.
 
-
 There is also a consideration that a more expensive college may have better education, so the graduation rates may be lower than a college one might consider "easier"; this relies on how well the education at a college is, which this model wouldn't show.
-
 
 
 # 2. Data Acquisition & Description
 
 **- Name and source of the dataset(s). **
 
-  College.rds dataset from the instructor
+  College.rds dataset from the instructor.
   
   
 **- How you obtained the data (download link, API, etc.).**
@@ -74,14 +68,10 @@ There is also a consideration that a more expensive college may have better educ
   
 
 ```{r setup-data, echo=FALSE, message=FALSE, warning=FALSE}
-# Example: load a dataset (replace with your own)
-# library(readr)
 library(tidyverse)
 library(modelr)
 library(broom)
-# data <- read_csv("college.rds")
 college = readRDS("college.rds")
-
 ```
 
 # 3. Data Cleaning & Preprocessing
@@ -90,125 +80,176 @@ Describe the steps you took to make the data usable, for example:
 
 **- Handling missing values (drop, impute, etc.).**  
     
-    We dropped the rows that weren't a graduation rate of 4 years/ 4 year institutions
+We dropped the rows that weren't a graduation rate of 4 years/ 4 year institutions
     
     
 **- Fixing types (dates, numeric vs. categorical).** 
 
-    We dropped rows that did not contain any information about the graduation rates and net prices (C150_4, NPT4_PUB, NPT4_PRIV).
+We dropped rows that did not contain any information about the graduation rates and net prices (C150_4, NPT4_PUB, NPT4_PRIV).
     
 
 **- Removing outliers (if done).** 
-  
-    We didn't remove any outliers becuse they are needed for analysis
+
+We didn't remove any outliers because they are needed for analysis.
     
     
 **- Creating new features (feature engineering).** 
 
-    A new feature, net_price, was created by combining private and public institution net price
+A new feature, net_price, was created by combining private and public institution net price.
 
 
 **- Any scaling or encoding.**
   
-    No scaling was needed
+No scaling was needed.
 
-```{r cleaning, eval=FALSE}
+```{r cleaning}
 college_clean <- college %>%
    dplyr::filter(PREDDEG == 3) %>%
    dplyr::mutate(
      grad_rate = C150_4,
-     net_price = dplyr::coalesce(NPT4_PUB, NPT4_PRIV)
+     net_price = dplyr::coalesce(NPT4_PUB, NPT4_PRIV),
+     type = ifelse(CONTROL == 1, "Public", "Private")
    ) %>%
   dplyr::filter(
     !is.na(grad_rate),
-    !is.na(net_price)
-  )
-
+    !is.na(net_price),
+    net_price > 0
+  ) %>%
+  dplyr::select(INSTNM, grad_rate, net_price, type)
 ```
 
 # 4. Exploratory Data Analysis (EDA)
 
-This section maps directly to the **EDA** part of the rubric:
-
-- Summary statistics  
-- Visualizations  
-- Interpretation connected to the research question  
+**- Summary statistics**
 
 ```{r eda-summary, message=FALSE, warning=FALSE}
-# library(dplyr)
-# summary(data_clean)
-```
+summary(college_clean %>% select(grad_rate, net_price))
 
-```{r eda-plot-example, message=FALSE, warning=FALSE, fig.cap="Example histogram of a numeric variable (EDA rubric)."}
-# library(ggplot2)
-# ggplot(data_clean, aes(x = some_numeric_variable)) +
-#   geom_histogram(binwidth = 5, color = "white") +
-#   labs(x = "Some Variable", y = "Count", title = "Distribution of Some Variable")
+college_clean %>%
+  summarise(
+    mean_grad = mean(grad_rate),
+    sd_grad = sd(grad_rate),
+    mean_price = mean(net_price),
+    sd_price = sd(net_price)
+  )
 ```
+* The average graduation rate for the universities in our study is approximately 51.5%, with an average net price of about $19,977$. These figures provide a clear baseline, showing that a typical student in our sample pays around $20,000$ and has a little over a 50% chance of graduating on time. The standard deviations also indicate a wide variety of costs and outcomes across the 1,850 institutions we are analyzing.
+
+
+**- Visualizations (Histogram)**
+
+```{r}
+ggplot(college_clean, aes(x = grad_rate)) +
+  geom_histogram(bins = 20, color = "white") +
+  labs(
+    title = "Distribution of Graduation Rates",
+    x = "Graduation Rate (0 to 1)",
+    y = "Number of Colleges"
+  )
+```
+* The graduation rates follow a roughly symmetric, bell-shaped distribution centered around the 50% mark. This tells us that most colleges in our dataset have graduation rates in the middle range, while extremely high or low graduation rates are relatively rare. This normal distribution is helpful for our later modeling steps because it suggests the data is well-behaved.
+
+
+**- Visualizations (Boxplot)**
+```{r}
+ggplot(college_clean, aes(x = type, y = grad_rate, fill = type)) +
+  geom_boxplot() +
+  labs(title = "Graduation Rate: Public vs Private", x = "Institution Type", y = "Graduation Rate")
+```
+* When comparing institution types, private schools generally show a higher median graduation rate than public schools. The boxplot reveals that the middle 50% of private colleges typically perform better in terms of student success.
+
+
+**- Visualizations (Scatter Plot)**
+```{r}
+ggplot(college_clean, aes(x = net_price, y = grad_rate)) +
+  geom_point(alpha = 0.4) +
+  geom_smooth(method = "lm") +
+  labs(
+    title = "Relationship Between Net Price and Graduation Rate",
+    x = "Net Price ($)",
+    y = "Graduation Rate"
+  )
+```
+* There is a clear positive correlation between net price and graduation rate. It is suggesting that as the cost of tuition increases, the graduation rate tends to rise as well. This visual evidence directly supports our initial hypothesis and justifies using a linear regression model for the next stage of our project.
+
 
 # 5. Visualization Quality and Storytelling
 
-Use this section to satisfy the **Visualization Quality** rubric criterion:
+We used a histogram for graduation rates because it is the most effective way to show the frequency and distribution of a single numeric variable. A boxplot was chosen to compare graduation rates between public and private institutions as it clearly displays medians and the spread of data across categories. A scatter plot was used for the relationship between net price and graduation rate, because it is visualizing correlation between two numeric variables.
 
-- Explain why your plot types are appropriate.  
-- Comment on labels, legends, colors, and overall readability.  
-- Mention any steps you took to make plots accessible and interpretable.
+To improve clarity, we included descriptive titles and clear axis labels so that anyone can understand the units being measured. In the scatter plot, we used alpha transparency to address the issue of over-plotting which allowing the reader to see the density of the whole data points more clearly. We also added a linear regression line to the scatter plot to provide a clear visual guide for the trend.
+
 
 # 6. Modeling Approach
 
-Explain how you framed the problem and which models you chose:
+Our project is framed as a regression task. Since our target variable (graduation rate) and our primary predictor (net price) are both continuous numerical values, we are looking to predict a specific numeric outcome rather than a category. For our baseline, we use the mean graduation rate of the dataset. This model assumes that every college has the same graduation rate (the average) regardless of its cost. We used this baseline to evaluate whether our chosen regression model actually provides a more accurate and meaningful prediction.
 
-- Type of task (regression, classification, etc.).  
-- Baseline model or heuristic, if used.  
-- Main model(s) chosen and why they are appropriate.
+We chose Simple Linear Regression as our primary model. Our Exploratory Data Analysis (EDA) revealed a roughly linear trend between net price and graduation rate. Linear regression provides a clear coefficient that tells us exactly how much the graduation rate is expected to change for every dollar increase in net price. Given that we are focusing on two key variables, a simple linear model prevents overfitting and provides a clear answer to our research question.
+
 
 # 7. Model Implementation & Evaluation
 
-This corresponds to the **Model Implementation & Evaluation** rubric criterion.
-
-Describe:
-
-- Features used.  
-- Data splitting strategy (train/test or cross-validation).  
-- Metrics used (accuracy, F1, RMSE, etc.).  
-- Tables/plots summarizing performance.  
-- A short interpretation of each metric/plot.
-
-```{r modeling, eval=FALSE}
-# Example structure:
-# set.seed(123)
-# train_index <- sample(seq_len(nrow(data_clean)), size = 0.8 * nrow(data_clean))
-# train <- data_clean[train_index, ]
-# test  <- data_clean[-train_index, ]
-#
-# model <- glm(target ~ ., data = train, family = binomial)
-# preds <- predict(model, newdata = test, type = "response")
-# # compute metrics...
+```{r modeling}
+library(modelr)
+library(broom)
+set.seed(123)
+college_split <- resample_partition(college_clean, c(train = 0.8, test = 0.2))
+train_data <- as_tibble(college_split$train)
+test_data <- as_tibble(college_split$test)
 ```
+
+```{r}
+final_model <- lm(grad_rate ~ net_price, data = train_data)
+```
+
+```{r}
+test_data %>%
+  summarise(
+    RMSE = rmse(final_model, test_data),
+    R_Squared = rsquare(final_model, test_data)
+  )
+```
+
+```{r}
+test_results <- test_data %>%
+  add_predictions(final_model)
+```
+
+```{r}
+ggplot(test_results, aes(x = pred, y = grad_rate)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0) +
+  labs(title = "Actual vs. Predicted Graduation Rates",
+       x = "Predicted Graduation Rate",
+       y = "Actual Graduation Rate")
+```
+For our model, we used net_price as the primary feature to predict the grad_rate. To ensure our model generalizes well to new data, we split our dataset into a training set (80%) to build the model and a testing set (20%) to evaluate its performance. We used a random seed to make sure our results are reproducible.
+
+Our RMSE value shows the average difference between our model’s prediction and the actual graduation rate. The R-squared value measures how much of the variation in graduation rates can be explained by the net price.
+
+The 'Actual vs. Predicted' plot shows how closely our predictions align with the real-world data. While there is a positive trend, the spread of the data points suggests that while net price is a significant factor, it is not the only thing that determines student success. The line on the plot represents a perfect prediction, and seeing our points cluster around it confirms that our linear approach was appropriate for this analysis.
+
 
 # 8. Conclusions & Recommendations
 
-Summarize the key takeaways:
+Our analysis confirms that there is a statistically significant positive relationship between a university's net price and its graduation rate. The R-squared value of 0.187 indicates that approximately 18.7% of the variation in graduation rates can be explained by the net price. While this shows that cost is a meaningful predictor, it also suggests that more than 80% of student success is determined by other factors not included in our simple model, such as student demographics, campus resources, or academic programs.
 
-- Answer your original research question(s) directly.  
-- Highlight the most important patterns or relationships you found.  
-- Discuss limitations (data size, bias, missing variables, etc.).  
-- Suggest possible extensions or future work.
+Our model's RMSE of 0.185 means that, on average, our predictions for graduation rates are off by about 18.5 percentage points. This level of error is expected when using a single predictor for a complex social outcome.
+
+For prospective students and parents, our findings suggest that "you get what you pay for" to some extent, as more expensive institutions tend to have higher graduation rates. However, because price only explains a small portion of the outcome, we recommend that students also evaluate other qualitative factors like faculty engagement and career services, rather than assuming a high price tag automatically guarantees success.
+
 
 # 9. Code Quality & Reproducibility
 
-Briefly document how someone else can reproduce your results:
-
-- Which R scripts or Rmd files to run.  
-- Any required R packages.  
+The following R packages must be installed and loaded to execute the code successfully:
+tidyverse, modelr, and broom.
 
 ```{r session-info, echo=FALSE}
 sessionInfo()
 ```
 
-# 10. References
 
-List any references you used, such as:
+# 10. References
 
 - Dataset documentation.
 
@@ -216,10 +257,3 @@ List any references you used, such as:
   
   https://docs.google.com/spreadsheets/d/1YrYiJ-J9rLhs4Qf5OCvHGMyUFyMKOMtMuGmpyt47mEY/edit?gid=1593529489#gid=1593529489
   
-
-- Research papers or articles.  
-- Tutorials or blog posts.
-
-# Appendix (Optional)
-
-Include extra plots, diagnostic checks, or model comparisons if needed.
