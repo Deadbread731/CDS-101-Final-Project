@@ -208,45 +208,197 @@ We run three models in total: one combined model using all schools, and separate
 
 # 7. Model Implementation & Evaluation
 
-```{r modeling}
+## 7.1 Combined Model (All Schools)
+
+```{r combined-split}
 library(modelr)
 library(broom)
 set.seed(123)
 college_split <- resample_partition(college_clean, c(train = 0.8, test = 0.2))
 train_data <- as_tibble(college_split$train)
-test_data <- as_tibble(college_split$test)
+test_data  <- as_tibble(college_split$test)
 ```
 
-```{r}
+```{r combined-model}
 final_model <- lm(grad_rate ~ net_price, data = train_data)
 ```
 
-```{r}
+**Model Coefficients:**
+
+```{r combined-tidy}
+tidy(final_model)
+```
+
+* The intercept represents the predicted graduation rate when net price is zero. The `net_price` coefficient tells us how much the graduation rate is expected to increase for each additional dollar in net price. A positive and statistically significant coefficient (p < 0.05) confirms that higher cost is associated with higher graduation rates across all institution types.
+
+**Model Performance:**
+
+```{r combined-performance}
 test_data %>%
   summarise(
-    RMSE = rmse(final_model, test_data),
+    RMSE      = rmse(final_model, test_data),
     R_Squared = rsquare(final_model, test_data)
   )
 ```
 
-```{r}
+**Actual vs. Predicted Plot:**
+
+```{r combined-pred-plot}
 test_results <- test_data %>%
   add_predictions(final_model)
-```
 
-```{r}
 ggplot(test_results, aes(x = pred, y = grad_rate)) +
   geom_point(alpha = 0.5) +
-  geom_abline(slope = 1, intercept = 0) +
-  labs(title = "Actual vs. Predicted Graduation Rates",
-       x = "Predicted Graduation Rate",
-       y = "Actual Graduation Rate")
+  geom_abline(slope = 1, intercept = 0, color = "red") +
+  labs(
+    title = "Combined Model: Actual vs. Predicted Graduation Rates",
+    x = "Predicted Graduation Rate",
+    y = "Actual Graduation Rate"
+  )
 ```
-For our model, we used net_price as the primary feature to predict the grad_rate. To ensure our model generalizes well to new data, we split our dataset into a training set (80%) to build the model and a testing set (20%) to evaluate its performance. We used a random seed to make sure our results are reproducible.
 
-Our RMSE value shows the average difference between our model’s prediction and the actual graduation rate. The R-squared value measures how much of the variation in graduation rates can be explained by the net price.
+**Residual Plot:**
 
-The 'Actual vs. Predicted' plot shows how closely our predictions align with the real-world data. While there is a positive trend, the spread of the data points suggests that while net price is a significant factor, it is not the only thing that determines student success. The line on the plot represents a perfect prediction, and seeing our points cluster around it confirms that our linear approach was appropriate for this analysis.
+```{r combined-residuals}
+train_data %>%
+  add_residuals(final_model) %>%
+  ggplot(aes(x = net_price, y = resid)) +
+  geom_point(alpha = 0.4) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(
+    title = "Combined Model: Residual Plot",
+    x = "Net Price ($)",
+    y = "Residuals"
+  )
+```
+
+* The residual plot checks whether the linear model assumptions hold. Ideally, the residuals should be randomly scattered around zero with no clear pattern. A funnel shape or curve would indicate a violation of those assumptions. We use this to validate that simple linear regression is an appropriate choice for our data.
+
+For our model, we used net_price as the primary feature to predict grad_rate. To ensure our model generalizes well to new data, we split our dataset into a training set (80%) to build the model and a testing set (20%) to evaluate its performance. We used a random seed to make sure our results are reproducible.
+
+## 7.2 Public vs. Private Institution Models
+
+Since public and private schools have structurally different pricing, we fit separate models for each institution type to see whether the relationship between net price and graduation rate holds within each group.
+
+```{r public-private-splits}
+set.seed(123)
+pub_split  <- resample_partition(college_public,  c(train = 0.8, test = 0.2))
+priv_split <- resample_partition(college_private, c(train = 0.8, test = 0.2))
+
+pub_train  <- as_tibble(pub_split$train)
+pub_test   <- as_tibble(pub_split$test)
+priv_train <- as_tibble(priv_split$train)
+priv_test  <- as_tibble(priv_split$test)
+```
+
+```{r public-model}
+public_model <- lm(grad_rate ~ net_price, data = pub_train)
+tidy(public_model)
+```
+
+```{r private-model}
+private_model <- lm(grad_rate ~ net_price, data = priv_train)
+tidy(private_model)
+```
+
+* Comparing the two coefficient tables tells us whether the slope differs between public and private institutions. A steeper slope for private schools would suggest that price is a stronger signal of quality in the private sector than in the public sector, where pricing is more heavily regulated by state funding.
+
+**Public Model Performance:**
+
+```{r public-performance}
+pub_test %>%
+  summarise(
+    RMSE      = rmse(public_model, pub_test),
+    R_Squared = rsquare(public_model, pub_test)
+  )
+```
+
+**Private Model Performance:**
+
+```{r private-performance}
+priv_test %>%
+  summarise(
+    RMSE      = rmse(private_model, priv_test),
+    R_Squared = rsquare(private_model, priv_test)
+  )
+```
+
+**Public Model: Actual vs. Predicted**
+
+```{r public-pred-plot}
+pub_test %>%
+  add_predictions(public_model) %>%
+  ggplot(aes(x = pred, y = grad_rate)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0, color = "red") +
+  labs(
+    title = "Public Schools: Actual vs. Predicted Graduation Rates",
+    x = "Predicted Graduation Rate",
+    y = "Actual Graduation Rate"
+  )
+```
+
+**Private Model: Actual vs. Predicted**
+
+```{r private-pred-plot}
+priv_test %>%
+  add_predictions(private_model) %>%
+  ggplot(aes(x = pred, y = grad_rate)) +
+  geom_point(alpha = 0.5) +
+  geom_abline(slope = 1, intercept = 0, color = "red") +
+  labs(
+    title = "Private Schools: Actual vs. Predicted Graduation Rates",
+    x = "Predicted Graduation Rate",
+    y = "Actual Graduation Rate"
+  )
+```
+
+## 7.3 Comparing Public vs. Private
+
+**Side-by-side scatter plots with regression lines:**
+
+```{r comparison-scatter}
+ggplot(college_clean, aes(x = net_price, y = grad_rate, color = type)) +
+  geom_point(alpha = 0.3) +
+  geom_smooth(method = "lm", se = TRUE) +
+  facet_wrap(~type) +
+  labs(
+    title = "Net Price vs. Graduation Rate by Institution Type",
+    x = "Net Price ($)",
+    y = "Graduation Rate",
+    color = "Type"
+  )
+```
+
+* Separating the scatter plots by institution type lets us see whether the trend we observed in the combined model is driven by one group more than the other. If the regression line for private schools is steeper than for public schools, it suggests that price variation among private institutions is more predictive of graduation outcomes.
+
+**Net Price Distribution by Institution Type:**
+
+```{r comparison-price-boxplot}
+ggplot(college_clean, aes(x = type, y = net_price, fill = type)) +
+  geom_boxplot() +
+  labs(
+    title = "Net Price Distribution: Public vs. Private",
+    x = "Institution Type",
+    y = "Net Price ($)"
+  )
+```
+
+* This plot shows how net prices compare between public and private schools. If private schools have a wider range of net prices, that helps explain why price may be a stronger predictor of graduation rates in that group.
+
+**Model Summary Comparison Table:**
+
+```{r comparison-table}
+bind_rows(
+  glance(final_model)   %>% mutate(Model = "Combined"),
+  glance(public_model)  %>% mutate(Model = "Public Only"),
+  glance(private_model) %>% mutate(Model = "Private Only")
+) %>%
+  select(Model, r.squared, sigma) %>%
+  rename(R_Squared = r.squared, RMSE = sigma)
+```
+
+* This table summarizes the R-squared and RMSE for all three models side by side. A higher R-squared and lower RMSE indicates a better-fitting model. Comparing across the three rows tells us whether splitting by institution type produces more accurate predictions than treating all schools together.
 
 \newpage
 
