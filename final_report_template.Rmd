@@ -202,6 +202,8 @@ Our project is framed as a regression task. Since our target variable (graduatio
 
 We chose Simple Linear Regression as our primary model. Our Exploratory Data Analysis (EDA) revealed a roughly linear trend between net price and graduation rate. Linear regression provides a clear coefficient that tells us exactly how much the graduation rate is expected to change for every dollar increase in net price. Given that we are focusing on two key variables, a simple linear model prevents overfitting and provides a clear answer to our research question.
 
+We run three models in total: one combined model using all schools, and separate models for public and private institutions. This allows us to see whether the relationship between price and graduation rate differs by institution type.
+
 \newpage
 
 # 7. Model Implementation & Evaluation
