@@ -141,13 +141,23 @@ summary(college_clean %>% select(grad_rate, net_price))
 
 college_clean %>%
   summarise(
-    mean_grad = mean(grad_rate),
-    sd_grad = sd(grad_rate),
+    mean_grad  = mean(grad_rate),
+    sd_grad    = sd(grad_rate),
     mean_price = mean(net_price),
-    sd_price = sd(net_price)
+    sd_price   = sd(net_price)
+  )
+
+college_clean %>%
+  group_by(type) %>%
+  summarise(
+    mean_grad  = mean(grad_rate),
+    sd_grad    = sd(grad_rate),
+    mean_price = mean(net_price),
+    sd_price   = sd(net_price),
+    .groups = "drop"
   )
 ```
-* The average graduation rate for the universities in our study is approximately 51.5%, with an average net price of about $19,977$. These figures provide a clear baseline, showing that a typical student in our sample pays around $20,000$ and has a little over a 50% chance of graduating on time. The standard deviations also indicate a wide variety of costs and outcomes across the 1,850 institutions we are analyzing.
+* The average graduation rate across all schools is approximately 51.5%, with an average net price of around $19,977. Breaking the summary down by institution type shows that public and private schools differ in both their average costs and graduation rates, which directly motivates our decision to run separate models for each group in addition to the combined model.
 
 
 **- Visualizations (Histogram)**
@@ -163,6 +173,16 @@ ggplot(college_clean, aes(x = grad_rate)) +
 ```
 * The graduation rates follow a roughly symmetric, bell-shaped distribution centered around the 50% mark. This tells us that most colleges in our dataset have graduation rates in the middle range, while extremely high or low graduation rates are relatively rare. This normal distribution is helpful for our later modeling steps because it suggests the data is well-behaved.
 
+```{r hist-price}
+ggplot(college_clean, aes(x = net_price)) +
+  geom_histogram(bins = 20, color = "white") +
+  labs(
+    title = "Distribution of Net Price",
+    x = "Net Price ($)",
+    y = "Number of Colleges"
+  )
+```
+*The distribution of net price is right-skewed, meaning most schools cluster at lower price points with a tail of higher-cost institutions. Since our research question asks whether higher net price is associated with higher graduation rates, understanding this skew is important — it tells us that extreme high-cost schools are relatively rare in the dataset. This also informs our modeling approach, since a skewed predictor can sometimes affect how well a linear regression fits the data.
 
 **- Visualizations (Boxplot)**
 ```{r}
@@ -174,17 +194,18 @@ ggplot(college_clean, aes(x = type, y = grad_rate, fill = type)) +
 
 
 **- Visualizations (Scatter Plot)**
-```{r}
-ggplot(college_clean, aes(x = net_price, y = grad_rate)) +
+```{r scatter-combined}
+ggplot(college_clean, aes(x = net_price, y = grad_rate, color = type)) +
   geom_point(alpha = 0.4) +
   geom_smooth(method = "lm") +
   labs(
     title = "Relationship Between Net Price and Graduation Rate",
     x = "Net Price ($)",
-    y = "Graduation Rate"
+    y = "Graduation Rate",
+    color = "Institution Type"
   )
 ```
-* There is a clear positive correlation between net price and graduation rate. It is suggesting that as the cost of tuition increases, the graduation rate tends to rise as well. This visual evidence directly supports our initial hypothesis and justifies using a linear regression model for the next stage of our project.
+* There is a positive relationship between net price and graduation rate, supporting our hypothesis that higher-cost schools tend to have higher graduation rates. Coloring the points by institution type reveals that public and private schools occupy different regions of the plot, with private schools generally spanning a wider price range. This suggests that the relationship between cost and graduation may behave differently across institution types, which directly informs our decision to run separate regression models for public and private schools in Section 7.
 
 \newpage
 
