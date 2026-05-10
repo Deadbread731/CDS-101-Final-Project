@@ -11,6 +11,7 @@ output:
     toc_depth: 3
     number_sections: true
 ---
+\newpage
 
 # 1. Problem Definition
 
@@ -22,6 +23,7 @@ However, the relationship may not be extremely strong. Net price alone does not 
 
 There is also a consideration that a more expensive college may have better education, so the graduation rates may be lower than a college one might consider "easier"; this relies on how well the education at a college is, which this model wouldn't show.
 
+\newpage
 
 # 2. Data Acquisition & Description
 
@@ -74,6 +76,8 @@ library(broom)
 college = readRDS("college.rds")
 ```
 
+\newpage
+
 # 3. Data Cleaning & Preprocessing
 
 Describe the steps you took to make the data usable, for example:
@@ -117,6 +121,16 @@ college_clean <- college %>%
   ) %>%
   dplyr::select(INSTNM, grad_rate, net_price, type)
 ```
+
+```{r split-subsets}
+college_public  <- college_clean %>% filter(type == "Public")
+college_private <- college_clean %>% filter(type == "Private")
+
+cat("Public schools: ", nrow(college_public), "\n")
+cat("Private schools:", nrow(college_private), "\n")
+```
+
+\newpage
 
 # 4. Exploratory Data Analysis (EDA)
 
@@ -172,6 +186,7 @@ ggplot(college_clean, aes(x = net_price, y = grad_rate)) +
 ```
 * There is a clear positive correlation between net price and graduation rate. It is suggesting that as the cost of tuition increases, the graduation rate tends to rise as well. This visual evidence directly supports our initial hypothesis and justifies using a linear regression model for the next stage of our project.
 
+\newpage
 
 # 5. Visualization Quality and Storytelling
 
@@ -179,6 +194,7 @@ We used a histogram for graduation rates because it is the most effective way to
 
 To improve clarity, we included descriptive titles and clear axis labels so that anyone can understand the units being measured. In the scatter plot, we used alpha transparency to address the issue of over-plotting which allowing the reader to see the density of the whole data points more clearly. We also added a linear regression line to the scatter plot to provide a clear visual guide for the trend.
 
+\newpage
 
 # 6. Modeling Approach
 
@@ -186,6 +202,7 @@ Our project is framed as a regression task. Since our target variable (graduatio
 
 We chose Simple Linear Regression as our primary model. Our Exploratory Data Analysis (EDA) revealed a roughly linear trend between net price and graduation rate. Linear regression provides a clear coefficient that tells us exactly how much the graduation rate is expected to change for every dollar increase in net price. Given that we are focusing on two key variables, a simple linear model prevents overfitting and provides a clear answer to our research question.
 
+\newpage
 
 # 7. Model Implementation & Evaluation
 
@@ -229,6 +246,7 @@ Our RMSE value shows the average difference between our model’s prediction and
 
 The 'Actual vs. Predicted' plot shows how closely our predictions align with the real-world data. While there is a positive trend, the spread of the data points suggests that while net price is a significant factor, it is not the only thing that determines student success. The line on the plot represents a perfect prediction, and seeing our points cluster around it confirms that our linear approach was appropriate for this analysis.
 
+\newpage
 
 # 8. Conclusions & Recommendations
 
@@ -238,6 +256,7 @@ Our model's RMSE of 0.185 means that, on average, our predictions for graduation
 
 For prospective students and parents, our findings suggest that "you get what you pay for" to some extent, as more expensive institutions tend to have higher graduation rates. However, because price only explains a small portion of the outcome, we recommend that students also evaluate other qualitative factors like faculty engagement and career services, rather than assuming a high price tag automatically guarantees success.
 
+\newpage
 
 # 9. Code Quality & Reproducibility
 
@@ -248,6 +267,7 @@ tidyverse, modelr, and broom.
 sessionInfo()
 ```
 
+\newpage
 
 # 10. References
 
