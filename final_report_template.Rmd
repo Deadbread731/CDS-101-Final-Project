@@ -404,11 +404,13 @@ bind_rows(
 
 # 8. Conclusions & Recommendations
 
-Our analysis confirms that there is a statistically significant positive relationship between a university's net price and its graduation rate. The R-squared value of 0.187 indicates that approximately 18.7% of the variation in graduation rates can be explained by the net price. While this shows that cost is a meaningful predictor, it also suggests that more than 80% of student success is determined by other factors not included in our simple model, such as student demographics, campus resources, or academic programs.
+Our analysis confirms that there is a statistically significant positive relationship between a university's net price and its graduation rate across all three models we fit: combined, public only, and private only.
 
-Our model's RMSE of 0.185 means that, on average, our predictions for graduation rates are off by about 18.5 percentage points. This level of error is expected when using a single predictor for a complex social outcome.
+In the combined model, the R-squared value indicates what percentage of the variation in graduation rates is explained by net price alone. While cost is a meaningful predictor, the majority of student success is still determined by other factors not captured in this model, such as student demographics, campus resources, or academic program quality. Our RMSE value shows the average difference between our model's predictions and the actual graduation rate.
 
-For prospective students and parents, our findings suggest that "you get what you pay for" to some extent, as more expensive institutions tend to have higher graduation rates. However, because price only explains a small portion of the outcome, we recommend that students also evaluate other qualitative factors like faculty engagement and career services, rather than assuming a high price tag automatically guarantees success.
+When we split the analysis by institution type, we found differences in how strongly net price predicts graduation rates for public versus private schools. Public schools are subject to state funding constraints that compress their net price range, which may limit how predictive price is in that group. Private schools span a wider price range and their costs more directly reflect institutional resources and selectivity, which may explain a stronger price-to-graduation relationship in that sector.
+
+For prospective students and parents, our findings suggest that "you get what you pay for" to some extent — more expensive institutions tend to have higher graduation rates. However, because price alone explains a limited portion of the outcome, we recommend that students also evaluate other qualitative factors like faculty engagement, career services, and institutional fit, rather than assuming a high price tag automatically guarantees success. The public vs. private distinction is also worth considering, since the meaning of "net price" differs substantially between those two groups.
 
 \newpage
 
