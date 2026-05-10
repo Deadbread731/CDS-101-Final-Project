@@ -99,7 +99,7 @@ We didn't remove any outliers because they are needed for analysis.
     
 **- Creating new features (feature engineering).** 
 
-A new feature, net_price, was created by combining private and public institution net price.
+A new feature, net_price, was created by combining private and public institution net price using coalesce(), which picks the non-missing value between NPT4_PUB and NPT4_PRIV for each school. An institution type variable was also created to label each school as Public or Private for use in the split analysis below.
 
 
 **- Any scaling or encoding.**
