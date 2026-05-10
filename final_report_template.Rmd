@@ -190,9 +190,15 @@ ggplot(college_clean, aes(x = net_price, y = grad_rate)) +
 
 # 5. Visualization Quality and Storytelling
 
-We used a histogram for graduation rates because it is the most effective way to show the frequency and distribution of a single numeric variable. A boxplot was chosen to compare graduation rates between public and private institutions as it clearly displays medians and the spread of data across categories. A scatter plot was used for the relationship between net price and graduation rate, because it is visualizing correlation between two numeric variables.
+We used histograms for both key numeric variables, graduation rate and net price, because they are the most effective way to show the frequency and distribution of a single numeric variable. Showing the distribution of both the response and explanatory variable gives the reader a complete picture of the data before any modeling is done.
 
-To improve clarity, we included descriptive titles and clear axis labels so that anyone can understand the units being measured. In the scatter plot, we used alpha transparency to address the issue of over-plotting which allowing the reader to see the density of the whole data points more clearly. We also added a linear regression line to the scatter plot to provide a clear visual guide for the trend.
+A boxplot was chosen to compare graduation rates between public and private institutions because it clearly displays medians, spread, and potential outliers across categories. This directly addresses whether institution type plays a role in student outcomes, which motivated our decision to run separate models by type.
+
+A scatter plot was used to visualize the relationship between net price and graduation rate because it is the most appropriate choice for two continuous numeric variables. We colored the points by institution type so the reader can see how public and private schools are distributed across the plot before we formally model them separately. Alpha transparency was applied to address overplotting, and a linear regression line was added to give a clear visual summary of the overall trend.
+
+All plots include descriptive titles and labeled axes so that anyone reading the report can understand what is being measured without needing additional context.
+
+
 
 \newpage
 
